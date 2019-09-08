@@ -1,11 +1,13 @@
-type EventNames<T extends string | symbol | { [K in string | symbol]: any[] }> = T extends string | symbol ? T : keyof T;
-type EventArgs<T extends string | symbol | { [K in string | symbol]: any[] }, K extends EventNames<T>> = T extends string | symbol ? any[] : K extends keyof T ? T[K] : never;
+type EventNamesOrMap = string | symbol | { [K in string | symbol]: any[] }
+type EventNames<T extends EventNamesOrMap> = T extends string | symbol ? T : keyof T;
+type EventArgs<T extends EventNamesOrMap, K extends EventNames<T>> =
+  T extends string | symbol ? any[] : K extends keyof T ? T[K] : never;
 
 /**
  * Minimal `EventEmitter` interface that is molded against the Node.js
  * `EventEmitter` interface.
  */
-declare class EventEmitter<EventTypes extends string | symbol | { [K in keyof EventTypes]: any[] } = string | symbol> {
+declare class EventEmitter<EventTypes extends EventNamesOrMap = string | symbol> {
   static prefixed: string | boolean;
 
   /**
@@ -58,7 +60,7 @@ declare namespace EventEmitter {
   }
 
   export interface EventEmitterStatic {
-    new<EventTypes extends string | symbol | { [K in keyof EventTypes]: any[] } = string | symbol>(): EventEmitter<EventTypes>;
+    new<EventTypes extends EventNamesOrMap = string | symbol>(): EventEmitter<EventTypes>;
   }
 
   export const EventEmitter: EventEmitterStatic;
